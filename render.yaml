@@ -3,7 +3,7 @@ services:
     name: bike-gear-backend
     runtime: python
     buildCommand: "./build.sh"
-    startCommand: "pipenv run gunicorn --bind 0.0.0.0:$PORT bike_shop.wsgi:application"
+    startCommand: ".venv/bin/gunicorn --bind 0.0.0.0:$PORT bike_shop.wsgi:application"
     envVars:
       - key: PYTHON_VERSION
         value: 3.12.0
