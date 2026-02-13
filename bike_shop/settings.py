@@ -32,7 +32,7 @@ SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-temporary-key-for-developm
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,.vercel.app').split(',')
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,.onrender.com').split(',')
 
 
 # Application definition
@@ -98,8 +98,8 @@ WSGI_APPLICATION = 'bike_shop.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# Use PostgreSQL for production (Vercel), SQLite for local development
-if os.getenv('VERCEL_ENV') or os.getenv('DATABASE_URL'):
+# Use PostgreSQL for production (Render), SQLite for local development
+if os.getenv('DATABASE_URL'):
     # Production database (PostgreSQL)
     import dj_database_url
     DATABASES = {
@@ -236,10 +236,10 @@ CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
-# Add Vercel domains if in production
-if os.getenv('VERCEL_ENV'):
+# Add Render domains if in production
+if os.getenv('RENDER') or os.getenv('DATABASE_URL'):
     CSRF_TRUSTED_ORIGINS.extend([
-        "https://*.vercel.app",
+        "https://*.onrender.com",
     ])
 # Add custom frontend URL if provided
 if frontend_url := os.getenv('FRONTEND_URL'):

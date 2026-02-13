@@ -14,6 +14,7 @@ djangorestframework-simplejwt = "*"
 django-filter = "*"
 whitenoise = "*"
 dj-database-url = "*"
+gunicorn = "*"
 
 [dev-packages]
 mysqlclient = "*"
