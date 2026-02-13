@@ -4,7 +4,6 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-mysqlclient = "*"
 django = "*"
 djangorestframework = "*"
 django-cors-headers = "*"
@@ -13,8 +12,11 @@ psycopg2-binary = "*"
 python-dotenv = "*"
 djangorestframework-simplejwt = "*"
 django-filter = "*"
+whitenoise = "*"
+dj-database-url = "*"
 
 [dev-packages]
+mysqlclient = "*"
 
 [requires]
-python_version = "3.13"
+python_version = "3.12"
