@@ -30,9 +30,9 @@ sys.path.insert(0, str(BASE_DIR / "apps"))
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-temporary-key-for-development-only-change-in-production')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,.vercel.app').split(',')
 
 
 # Application definition
@@ -64,6 +64,7 @@ AUTH_USER_MODEL = 'accounts.User'
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware', 
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Add WhiteNoise for static files
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -97,16 +98,27 @@ WSGI_APPLICATION = 'bike_shop.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# TEMPORARY: Using SQLite for development
-# To switch back to MySQL, comment out the SQLite config and uncomment the MySQL config below
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# Use PostgreSQL for production (Vercel), SQLite for local development
+if os.getenv('VERCEL_ENV') or os.getenv('DATABASE_URL'):
+    # Production database (PostgreSQL)
+    import dj_database_url
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=os.getenv('DATABASE_URL'),
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
     }
-}
+else:
+    # Local development database (SQLite)
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
-# MySQL Configuration (Currently Disabled)
+# Alternative: MySQL Configuration (Uncomment if needed)
 # DATABASES = {
 #     'default': {
 #         'ENGINE': 'django.db.backends.mysql',
@@ -170,8 +182,12 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:3000",
 ]
 
-# Temporarily allow all origins for debugging (REMOVE in production!)
-CORS_ORIGIN_ALLOW_ALL = True
+# Add production frontend URL if provided
+if frontend_url := os.getenv('FRONTEND_URL'):
+    CORS_ALLOWED_ORIGINS.append(frontend_url)
+
+# Allow all origins in development only (REMOVE in production!)
+CORS_ORIGIN_ALLOW_ALL = DEBUG
 
 # Allow credentials (cookies, sessions) to be sent with CORS requests
 CORS_ALLOW_CREDENTIALS = True
@@ -205,19 +221,29 @@ SESSION_COOKIE_NAME = 'sessionid'
 SESSION_COOKIE_AGE = 1209600  # 2 weeks
 SESSION_SAVE_EVERY_REQUEST = True  # Save session on every request to ensure it persists
 SESSION_COOKIE_HTTPONLY = False  # Allow JavaScript to access for debugging
-SESSION_COOKIE_SECURE = False  # Set to True in production with HTTPS
-SESSION_COOKIE_SAMESITE = 'Lax'  # 'Lax' for localhost, 'None' for cross-origin with HTTPS
+SESSION_COOKIE_SECURE = not DEBUG  # Use secure cookies in production
+SESSION_COOKIE_SAMESITE = 'None' if not DEBUG else 'Lax'  # 'None' for cross-origin with HTTPS
 SESSION_COOKIE_DOMAIN = None  # None for localhost
 SESSION_COOKIE_PATH = '/'
 
 # CSRF cookie settings for cross-origin requests
-CSRF_COOKIE_SAMESITE = 'Lax'  # 'Lax' for localhost
-CSRF_COOKIE_SECURE = False  # Set to True in production with HTTPS
+CSRF_COOKIE_SAMESITE = 'None' if not DEBUG else 'Lax'
+CSRF_COOKIE_SECURE = not DEBUG  # Use secure cookies in production
 CSRF_COOKIE_HTTPONLY = False
+
+# Dynamically build CSRF_TRUSTED_ORIGINS
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
+# Add Vercel domains if in production
+if os.getenv('VERCEL_ENV'):
+    CSRF_TRUSTED_ORIGINS.extend([
+        "https://*.vercel.app",
+    ])
+# Add custom frontend URL if provided
+if frontend_url := os.getenv('FRONTEND_URL'):
+    CSRF_TRUSTED_ORIGINS.append(frontend_url)
 
 
 # Internationalization
@@ -238,6 +264,9 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
+
+# WhiteNoise configuration for serving static files
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / "media"
