@@ -1,0 +1,157 @@
+{% extends 'admin/layouts/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+<style>
+    .section-type-help {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="page-content">
+    <div class="container-xxl">
+        <!-- Page Title -->
+        <div class="row">
+            <div class="col-12">
+                <div class="page-title-box d-flex align-items-center justify-content-between">
+                    <h4 class="page-title mb-0">{{ title }}</h4>
+                    <div class="page-title-right">
+                        <a href="{% url 'dashboard:featured_section_list' %}" class="btn btn-secondary">
+                            <i class="iconoir-arrow-left me-1"></i> Back to List
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Messages -->
+        {% if messages %}
+        <div class="row">
+            <div class="col-12">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Form -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <form method="post" id="sectionForm">
+                            {% csrf_token %}
+                            
+                            <!-- Section Information -->
+                            <h5 class="mb-3">Section Information</h5>
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label for="{{ form.title.id_for_label }}" class="form-label">Title *</label>
+                                    {{ form.title }}
+                                    {% if form.title.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.title.errors.0 }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">{{ form.title.help_text }}</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="{{ form.subtitle.id_for_label }}" class="form-label">Subtitle</label>
+                                    {{ form.subtitle }}
+                                    {% if form.subtitle.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.subtitle.errors.0 }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">{{ form.subtitle.help_text }}</small>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Product Selection -->
+                            <h5 class="mb-3">Product Selection</h5>
+                            
+                            <!-- Section Type -->
+                            <div class="row mb-4">
+                                <div class="col-md-6">
+                                    <label for="{{ form.section_type.id_for_label }}" class="form-label">Section Type *</label>
+                                    {{ form.section_type }}
+                                    {% if form.section_type.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.section_type.errors.0 }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">{{ form.section_type.help_text }}</small>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="{{ form.max_products.id_for_label }}" class="form-label">Maximum Products *</label>
+                                    {{ form.max_products }}
+                                    {% if form.max_products.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.max_products.errors.0 }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">{{ form.max_products.help_text }}</small>
+                                </div>
+                            </div>
+
+                            <!-- Products Selection -->
+                            <div class="row mb-4">
+                                <div class="col-12">
+                                    <label for="{{ form.products.id_for_label }}" class="form-label">Products *</label>
+                                    {{ form.products }}
+                                    {% if form.products.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.products.errors.0 }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">Hold Ctrl (Cmd on Mac) to select multiple products</small>
+                                </div>
+                            </div>
+
+                            <hr>
+
+                            <!-- Display Settings -->
+                            <h5 class="mb-3">Display Settings</h5>
+                            <div class="row mb-4">
+                                <div class="col-md-4">
+                                    <label for="{{ form.display_order.id_for_label }}" class="form-label">Display Order</label>
+                                    {{ form.display_order }}
+                                    {% if form.display_order.errors %}
+                                    <div class="invalid-feedback d-block">{{ form.display_order.errors.0 }}</div>
+                                    {% endif %}
+                                    <small class="form-text text-muted">{{ form.display_order.help_text }}</small>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label d-block">Active Status</label>
+                                    <div class="form-check form-switch">
+                                        {{ form.is_active }}
+                                        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                                            Section is active
+                                        </label>
+                                    </div>
+                                    <small class="form-text text-muted">{{ form.is_active.help_text }}</small>
+                                </div>
+                            </div>
+
+                            <!-- Form Errors -->
+                            {% if form.non_field_errors %}
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors }}
+                            </div>
+                            {% endif %}
+
+                            <!-- Submit Buttons -->
+                            <div class="d-flex justify-content-end gap-2">
+                                <a href="{% url 'dashboard:featured_section_list' %}" class="btn btn-secondary">Cancel</a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="iconoir-save-floppy-disk me-1"></i> Save Section
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
